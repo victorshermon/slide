@@ -30,7 +30,7 @@ export default class Slide {
   }
 
   onMove(event) {
-    const pointerPosition = (event.type === 'mousemove') ? eent.clientX :event.changedTouches[0].clientX;
+    const pointerPosition = (event.type === 'mousemove') ? event.clientX :event.changedTouches[0].clientX;
     const positionFinal = this.updatePosition(pointerPosition);
     this.moveSlide(positionFinal);
   }
@@ -54,9 +54,44 @@ export default class Slide {
     this.onEnd = this.onEnd.bind(this);
   }
 
+  // Slide Config
+
+  slidePosition(slide) {
+    const margin = (this.wrapper.offsetWidth - slide.offsetWidth) / 2;
+    return -(slide.offsetLeft - margin);
+  }
+
+  slideConfig() {
+    this.slideArray = [...this.slide.children].map((element) => {
+      const position = this.slidePosition(element);
+      return {
+        position,
+        element
+      }
+    });
+    console.log(this.slideArray);
+  }
+
+  slidesIndexNav(index) {
+    const last = this.slideArray.length -1;
+    this.index = {
+      prev: index ? index -1 : undefined,
+      active:index,
+      next:index === last ? undefined : index + 1,
+    }
+  }
+
+  changeSlide(index) {
+    const activeSlide = this.slideArray[index];
+    this.moveSlide(activeSlide.position);
+    this.slidesIndexNav(index);
+    this.dist.finalPosition = activeSlide.position;
+  }
+
   init(){
     this.bindStart();
     this.addSlideEvents();
+    this.slideConfig();
     return this;
   }
 
